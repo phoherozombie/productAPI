@@ -5,68 +5,176 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Product Manager</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        /* Custom Colors */
+        :root {
+            --primary-color: #ff6f61; /* Coral */
+            --secondary-color: #3a3a3a; /* Dark Grey */
+            --background-color: #f7f7f7; /* Light Grey */
+            --card-bg: #ffffff; /* White */
+            --card-border: #ddd; /* Light Border */
+            --hover-bg: #ffe0e0; /* Light Coral */
+        }
+
+        body {
+            background-color: var(--background-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .container {
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 2.5rem;
+        }
+
+        .form-control, .btn-primary {
+            border-radius: 8px;
+        }
+
+        .form-group label {
+            font-weight: bold;
+            color: var(--secondary-color);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+
+        .card {
+            margin: 15px;
+            border-radius: 10px;
+            border: 1px solid var(--card-border);
+            transition: all 0.3s ease-in-out;
+            background-color: var(--card-bg);
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .card:hover {
+            transform: scale(1.05);
+            background-color: var(--hover-bg);
+        }
+
+        .card-img-top {
+            height: 200px;
+            object-fit: cover;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+
+        .product-card-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-evenly;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .card-title {
+            color: var(--primary-color);
+            font-size: 1.25rem;
+        }
+
+        .card-text {
+            color: var(--secondary-color);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container mt-5">
-        <h1 class="mb-4">Product Manager</h1>
+        <h1 class="mb-4 text-center">Product Manager</h1>
         <form id="product-form" enctype="multipart/form-data">
-            <div class="form-group">
-                <label for="name">Name</label>
-                <input type="text" class="form-control" id="name" required>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="name">Name</label>
+                    <input type="text" class="form-control" id="name" required>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="price">Price</label>
+                    <input type="number" class="form-control" id="price" required>
+                </div>
             </div>
             <div class="form-group">
                 <label for="description">Description</label>
-                <textarea class="form-control" id="description" required></textarea>
-            </div>
-            <div class="form-group">
-                <label for="price">Price</label>
-                <input type="number" class="form-control" id="price" required>
+                <textarea class="form-control" id="description" rows="4" required></textarea>
             </div>
             <div class="form-group">
                 <label for="image">Image</label>
                 <input type="file" class="form-control-file" id="image" required>
             </div>
-            <button type="submit" class="btn btn-primary">Add Product</button>
+            <button type="submit" class="btn btn-primary btn-block">Add Product</button>
         </form>
 
-        <div id="product-cards" class="mt-4"></div>
+        <div id="product-cards" class="mt-5 product-card-container"></div>
     </div>
 
     <script>
         const form = document.getElementById('product-form');
+        
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             const formData = new FormData(form);
-            const response = await fetch('http://localhost:3000/api/products', {
-                method: 'POST',
-                body: formData
-            });
-            if (response.ok) {
-                loadProducts(); // Tải lại danh sách sản phẩm
+            try {
+                const response = await fetch('http://localhost:3000/api/products', {
+                    method: 'POST',
+                    body: formData
+                });
+                if (response.ok) {
+                    loadProducts(); // Reload product list after adding a new one
+                } 
+            } catch (error) {
+                alert('Error: ' + error.message);
             }
         });
 
         async function loadProducts() {
-            const response = await fetch('http://localhost:3000/api/products');
-            const products = await response.json();
-            const productCards = document.getElementById('product-cards');
-            productCards.innerHTML = '';
-            products.forEach(product => {
-                const card = `
-                    <div class="card" style="width: 18rem; margin: 10px; display: inline-block;">
-                        <img src="${product.image}" class="card-img-top" alt="${product.name}">
-                        <div class="card-body">
-                            <h5 class="card-title">${product.name}</h5>
-                            <p class="card-text">${product.description}</p>
-                            <p class="card-text">$${product.price}</p>
+            try {
+                const response = await fetch('http://localhost:3000/api/products');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch products');
+                }
+                const products = await response.json();
+                const productCards = document.getElementById('product-cards');
+                productCards.innerHTML = '';
+                products.forEach(product => {
+                    const card = `
+                        <div class="card" style="width: 18rem;">
+                            <img src="${product.image}" class="card-img-top" alt="${product.name}">
+                            <div class="card-body">
+                                <h5 class="card-title">${product.name}</h5>
+                                <p class="card-text">${product.description}</p>
+                                <p class="card-text">$${product.price}</p>
+                            </div>
                         </div>
-                    </div>
-                `;
-                productCards.innerHTML += card;
-            });
+                    `;
+                    productCards.innerHTML += card;
+                });
+            } catch (error) {
+                alert('Error loading products: ' + error.message);
+            }
         }
 
-        loadProducts(); // Tải sản phẩm ngay khi tải trang
+        loadProducts(); // Load products when the page is loaded
     </script>
 </body>
 </html>

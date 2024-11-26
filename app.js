@@ -15,7 +15,7 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'views', 'index.html')); // Đảm bảo rằng bạn đang trả về đúng tệp
 });
 // Kết nối đến MongoDB
-mongoose.connect('mongodb://localhost:27017/productdb')
+mongoose.connect('mongodb://localhost:27017/productdb' )
     .then(() => console.log('MongoDB Connected'))
     .catch(err => console.error(err));
 
